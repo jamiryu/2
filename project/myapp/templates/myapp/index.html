@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weld Record List</title>
+    <link href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .ag-theme-alpine {
+            height: 600px;
+            width: 100%;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Weld Record List</h1>
+    
+    <div class="controls">
+        <button id="addRow">Add Row</button>
+        <button id="deleteRow">Delete Selected Row</button>
+        <!-- Export to Excel Button -->
+        <button id="exportExcel">Export to Excel</button>
+    </div>
+
+    <!-- AG-Grid Div -->
+    <div id="myGrid" class="ag-theme-alpine"></div>
+
+    <!-- AG-Grid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <script>
+        // AG-Grid setup with all fields
+        const columnDefs = [
+            { headerName: "Birleştir", field: "birlestir", sortable: true, filter: true, editable: true },
+            { headerName: "Control No", field: "control_no", sortable: true, filter: true, editable: true },
+            { headerName: "Shop Field", field: "shop_field", sortable: true, filter: true, editable: true },
+            { headerName: "Weld No", field: "weld_no", sortable: true, filter: true, editable: true },
+            { headerName: "DIA Inch", field: "dia_inch", sortable: true, filter: true, editable: true },
+            { headerName: "DN", field: "dn", sortable: true, filter: true, editable: true },
+            { headerName: "ISOMETRI No", field: "isometri_no", sortable: true, filter: true, editable: true },
+            { headerName: "Spool No", field: "spool_no", sortable: true, filter: true, editable: true },
+            { headerName: "REV", field: "revision", sortable: true, filter: true, editable: true },
+            { headerName: "Specs", field: "specs", sortable: true, filter: true, editable: true },
+            { headerName: "Material", field: "material", sortable: true, filter: true, editable: true },
+            { headerName: "Weld Type", field: "weld_type", sortable: true, filter: true, editable: true },
+            { headerName: "Size 1", field: "size_1", sortable: true, filter: true, editable: true },
+            { headerName: "Thick 1", field: "thick_1", sortable: true, filter: true, editable: true },
+            { headerName: "Size 2", field: "size_2", sortable: true, filter: true, editable: true },
+            { headerName: "Thick 2", field: "thick_2", sortable: true, filter: true, editable: true },
+            { headerName: "From Mat", field: "from_mat", sortable: true, filter: true, editable: true },
+            { headerName: "To Mat", field: "to_mat", sortable: true, filter: true, editable: true },
+            { headerName: "WPS No", field: "wps_no", sortable: true, filter: true, editable: true },
+            { headerName: "From Desc 1", field: "from_desc_1", sortable: true, filter: true, editable: true },
+            { headerName: "Heat No 1", field: "heat_no1", sortable: true, filter: true, editable: true },
+            { headerName: "To Desc 2", field: "to_desc_2", sortable: true, filter: true, editable: true },
+            { headerName: "Heat No 2", field: "heat_no2", sortable: true, filter: true, editable: true },
+            { headerName: "Fit-Up Control ID", field: "fit_up_controlid", sortable: true, filter: true, editable: true },
+            { headerName: "Fitup Date", field: "fitup_date", sortable: true, filter: true, editable: true },
+            { headerName: "Fit Result", field: "fit_result", sortable: true, filter: true, editable: true },
+            { headerName: "Welder ID", field: "welder_id", sortable: true, filter: true, editable: true },
+            { headerName: "Welder 2 ID", field: "welder_2id", sortable: true, filter: true, editable: true },
+            { headerName: "Weld Date", field: "weld_date", sortable: true, filter: true, editable: true },
+            { headerName: "Weld Result", field: "weld_result", sortable: true, filter: true, editable: true },
+            { headerName: "Weld Process", field: "weld_process", sortable: true, filter: true, editable: true },
+            { headerName: "Circ Seams MT/PT", field: "circ_seams_mt_pt", sortable: true, filter: true, editable: true },
+            { headerName: "Circ Seams RT/UT", field: "circ_seams_rt_ut", sortable: true, filter: true, editable: true },
+            { headerName: "Nozzle Welds MT/PT", field: "nozzle_welds_mt_pt", sortable: true, filter: true, editable: true },
+            { headerName: "Nozzle Welds RT/UT", field: "nozzle_welds_rt_ut", sortable: true, filter: true, editable: true },
+            { headerName: "Fillet Welds MT/PT", field: "fillet_welds_mt_pt", sortable: true, filter: true, editable: true },
+            { headerName: "MT/PT Date", field: "mt_pt_date", sortable: true, filter: true, editable: true },
+            { headerName: "MT/PT Result", field: "mt_pt_result", sortable: true, filter: true, editable: true },
+            { headerName: "MT/PT Reports", field: "mt_pt_reports", sortable: true, filter: true, editable: true },
+            { headerName: "RT/UT Date", field: "rt_ut_date", sortable: true, filter: true, editable: true },
+            { headerName: "RT/UT Result", field: "rt_ut_result", sortable: true, filter: true, editable: true },
+            { headerName: "RT/UT Reports", field: "rt_ut_reports", sortable: true, filter: true, editable: true },
+            { headerName: "Sub-system", field: "sub_system", sortable: true, filter: true, editable: true },
+            { headerName: "Description Area", field: "description_area", sortable: true, filter: true, editable: true },
+            { headerName: "Total Length", field: "total_length", sortable: true, filter: true, editable: true },
+            { headerName: "Ped Cat", field: "ped_cat", sortable: true, filter: true, editable: true },
+            { headerName: "DN1", field: "dn1", sortable: true, filter: true, editable: true },
+            { headerName: "DN2", field: "dn2", sortable: true, filter: true, editable: true },
+            { headerName: "Sheet No", field: "sheet_no", sortable: true, filter: true, editable: true },
+            { headerName: "Extra Welding Joint", field: "extra_welding_joint", sortable: true, filter: true, editable: true },
+            { headerName: "Responsible for Modification", field: "modification_responsible", sortable: true, filter: true, editable: true },
+            { headerName: "Test Package No", field: "test_package_no", sortable: true, filter: true, editable: true },
+            { headerName: "Fitter ID", field: "fitter_id", sortable: true, filter: true, editable: true },
+            { headerName: "Fitup Checked Count", field: "fittup_checked_count", sortable: true, filter: true, editable: true },
+            { headerName: "Remarks", field: "remarks", sortable: true, filter: true, editable: true },
+        ];
+
+        const gridOptions = {
+            columnDefs: columnDefs,
+            rowData: [],  // API'den alınacak veri
+            rowSelection: 'multiple',
+            animateRows: true,
+            pagination: true,
+            paginationPageSize: 10,
+            defaultColDef: {
+                editable: true,
+                sortable: true,
+                filter: true,
+                resizable: true
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const gridDiv = document.querySelector('#myGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+
+            // Fetch data from API and populate grid
+            fetch('/api/weldrecords/')
+                .then(response => response.json())
+                .then(data => {
+                    if (gridOptions.api) {
+                        gridOptions.api.applyTransaction({ add: data });
+                    }
+                });
+
+            // Export to Excel functionality
+            document.querySelector('#exportExcel').addEventListener('click', function () {
+                window.location.href = '/export-weldrecords-excel/';
+            });
+        });
+    </script>
+
+</body>
+</html>

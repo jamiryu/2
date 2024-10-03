@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isometries List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+        /* Mobil uyumlu tasarım için tabloların kaydırılabilir olmasını sağlar */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        /* Butonların ve metinlerin mobil ekranlarda daha kolay tıklanmasını sağlar */
+        .btn {
+            font-size: 1.1rem;  /* Buton metinleri biraz daha büyük */
+            padding: 10px 20px; /* Daha büyük tıklama alanı */
+        }
+
+        /* Tablonun kenar boşlukları mobilde daha iyi görünmesi için */
+        table {
+            width: 100%;
+        }
+
+        /* Mobil uyumlu başlık boyutları */
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Arama çubuğu görünümü */
+        .search-bar {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Isometries</h1>
+
+        
+
+        <div class="table-wrapper">
+            <table class="table table-hover" id="isometriesTable">
+                <thead>
+                    <tr>
+                        <th>Isometry No</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for isometri in isometries %}
+                    <tr>
+                        <td>{{ isometri }}</td>
+                        <td>
+                            <a href="{% url 'welds_by_isometri' isometri %}" class="btn btn-info">Show Welds</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No isometries found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // DataTables ile arama ve sayfalama işlevselliği etkinleştirildi
+            var table = $('#isometriesTable').DataTable({
+                "responsive": true,  // Mobil uyumluluk için
+                "searching": true,   // Arama çubuğunu etkinleştir
+                "lengthChange": true,  // Kaç kayıt gösterileceği seçeneği
+            });
+
+            // Arama kutusuna yazılan metni filtrelemek için
+            $('#searchInput').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
+</body>
+
+</html>

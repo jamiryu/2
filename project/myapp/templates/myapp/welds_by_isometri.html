@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weld Details</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Weld Details for Isometry: {{ isometri_no }}</h2>
+
+        <div class="table-wrapper">
+            <table class="table table-hover" id="weldsTable">
+                <thead>
+                    <tr>
+                        <th>Weld No</th>
+                        <th>REV</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for weld in welds %}
+                    <tr>
+                        <td>{{ weld.weld_no }}</td>
+                        <td>{{ weld.revision }}</td>
+                        <td>
+                            <!-- Fitup Button -->
+                            <button class="btn btn-sm {% if weld.fitup_date %}btn-success{% else %}btn-warning{% endif %}"
+                                data-toggle="modal" data-target="#editModal"
+                                onclick="openEditModal('{{ weld.id }}', '{{ weld.description_area }}', '{{ weld.isometri_no }}', '{{ weld.weld_no }}', '{{ weld.sheet_no }}', '{{ weld.revision }}', '{{ weld.spool_no }}', '{{ weld.from_desc_1 }}', '{{ weld.heat_no1 }}', '{{ weld.to_desc_2 }}', '{{ weld.heat_no2 }}', '{{ weld.dn }}', '{{ weld.weld_type }}', '{{ weld.fitup_date|date:'Y-m-d' }}', '{{ weld.fitter_id }}', '{{ weld.fittup_checked_count }}', '{{ weld.remarks }}', '{{ weld.thick_1 }}')">
+                                Fitup
+                            </button>
+
+                            <!-- Welder Button (only visible if fitup is completed) -->
+                            {% if weld.fitup_date %}
+                            <!-- Welder Button: Green if weld_date exists, Orange if it doesn't -->
+                            <button class="btn btn-sm {% if weld.weld_date %}btn-success{% else %}btn-warning{% endif %}" 
+                                data-toggle="modal" 
+                                data-target="#welderModal"
+                                onclick="openWelderModal('{{ weld.id }}', '{{ weld.description_area|default_if_none:"" }}', '{{ weld.isometri_no|default_if_none:"" }}', '{{ weld.weld_no|default_if_none:"" }}', '{{ weld.wps_no|default_if_none:"" }}', '{{ weld.weld_process|default_if_none:"" }}', '{{ weld.welder_id|default_if_none:"" }}', '{{ weld.welder_2id|default_if_none:"" }}', '{{ weld.weld_date|default_if_none:"" }}')">
+                                Welder
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No welds found for this isometry.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Modal (Fitup) -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Weld</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="description_area">Description Area</label>
+                            <input type="text" class="form-control" id="description_area" name="description_area" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="isometri_no">Isometry No</label>
+                            <input type="text" class="form-control" id="isometri_no" name="isometri_no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="weld_no">Weld No</label>
+                            <input type="text" class="form-control" id="weld_no" name="weld_no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="sheet_no">Sheet No</label>
+                            <input type="text" class="form-control" id="sheet_no" name="sheet_no">
+                        </div>
+                        <div class="form-group">
+                            <label for="revision">Revision</label>
+                            <input type="text" class="form-control" id="revision" name="revision">
+                        </div>
+
+                        <!-- Newly added field for thick_1 -->
+                        <div class="form-group">
+                            <label for="thick_1">Thickness 1</label>
+                            <input type="text" class="form-control" id="thick_1" name="thick_1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="spool_no">Spool No</label>
+                            <input type="text" class="form-control" id="spool_no" name="spool_no">
+                        </div>
+                        <div class="form-group">
+                            <label for="from_desc_1">From Description 1</label>
+                            <select id="from_desc_1" class="form-control">
+                                {% for option in from_desc_1_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="heat_no1">Heat No 1</label>
+                            <input type="text" class="form-control" id="heat_no1" name="heat_no1">
+                        </div>
+                        <div class="form-group">
+                            <label for="to_desc_2">To Description 2</label>
+                            <select id="to_desc_2" class="form-control">
+                                {% for option in to_desc_2_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="heat_no2">Heat No 2</label>
+                            <input type="text" class="form-control" id="heat_no2" name="heat_no2">
+                        </div>
+                        <div class="form-group">
+                            <label for="dn">DN</label>
+                            <select id="dn" class="form-control">
+                                {% for option in dn_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="weld_type">Weld Type</label>
+                            <select id="weld_type" class="form-control">
+                                {% for option in weld_type_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fitup_date">Fitup Date</label>
+                            <input type="date" class="form-control" id="fitup_date" name="fitup_date">
+                        </div>
+                        
+                        <!-- Newly added fields -->
+                        <div class="form-group">
+                            <label for="fitter_id">Fitter ID</label>
+                            <select id="fitter_id" class="form-control">
+                                <option value="Osman">Osman</option>
+                                <option value="Hakan">Hakan</option>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fittup_checked_count">Fitup Checked Count</label>
+                            <select id="fittup_checked_count" class="form-control">
+                                <option value=""></option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks">Remarks</label>
+                            <textarea class="form-control" id="remarks" rows="3"></textarea>
+                        </div>
+
+                        <input type="hidden" id="weld_id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveChanges()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welder Modal -->
+    <div class="modal fade" id="welderModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Welder and Weld Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="welderForm">
+                        <!-- Existing fields for welder details -->
+                        <div class="form-group">
+                            <label for="description_area_welder">Description Area</label>
+                            <input type="text" class="form-control" id="description_area_welder" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="isometri_no_welder">Isometry No</label>
+                            <input type="text" class="form-control" id="isometri_no_welder" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="weld_no_welder">Weld No</label>
+                            <input type="text" class="form-control" id="weld_no_welder" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="wps_no_welder">WPS No</label>
+                            <select id="wps_no_welder" class="form-control">
+                                {% for option in wps_no_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="weld_process_welder">Weld 2</label>
+                            <select id="weld_process_welder" class="form-control">
+                                {% for option in weld_process_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="welder_id">Welder ID</label>
+                            <select id="welder_id" class="form-control">
+                                {% for option in welder_id_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="welder_2id">Welder 2 ID</label>
+                            <select id="welder_2id" class="form-control">
+                                {% for option in welder_2id_options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="weld_date_welder">Weld Date</label>
+                            <input type="date" class="form-control" id="weld_date_welder">
+                        </div>
+                        <input type="hidden" id="welder_weld_id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveWelderChanges()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#weldsTable').DataTable();
+        });
+
+        // Function to open the edit modal and populate it with weld data
+        function openEditModal(id, descriptionArea, isometryNo, weldNo, sheetNo, revision, spoolNo, fromDesc1, heatNo1, toDesc2, heatNo2, dn, weldType, fitupDate, fitterId, fittupCheckedCount, remarks, thick1) {
+            document.getElementById('weld_id').value = id;
+            document.getElementById('description_area').value = descriptionArea;
+            document.getElementById('isometri_no').value = isometryNo;
+            document.getElementById('weld_no').value = weldNo;
+            document.getElementById('sheet_no').value = sheetNo;
+            document.getElementById('revision').value = revision;
+            document.getElementById('spool_no').value = spoolNo;
+            document.getElementById('from_desc_1').value = fromDesc1;
+            document.getElementById('heat_no1').value = heatNo1;
+            document.getElementById('to_desc_2').value = toDesc2;
+            document.getElementById('heat_no2').value = heatNo2;
+            document.getElementById('dn').value = dn;
+            document.getElementById('weld_type').value = weldType;
+            document.getElementById('thick_1').value = thick1; // Added thick_1 field
+            
+            if (fitupDate) {
+                let date = new Date(fitupDate);
+                let formattedDate = date.toISOString().split('T')[0];
+                document.getElementById('fitup_date').value = formattedDate;
+            } else {
+                document.getElementById('fitup_date').value = '';
+            }
+
+            // Populate newly added fields
+            document.getElementById('fitter_id').value = fitterId || '';
+            document.getElementById('fittup_checked_count').value = fittupCheckedCount || '';
+            document.getElementById('remarks').value = remarks || '';
+        }
+
+        function openWelderModal(id, descriptionArea, isometryNo, weldNo, wpsNo, weldProcess, welderId, welder2Id, weldDate) {
+    document.getElementById('welder_weld_id').value = id;
+    document.getElementById('description_area_welder').value = descriptionArea || '';
+    document.getElementById('isometri_no_welder').value = isometryNo || '';
+    document.getElementById('weld_no_welder').value = weldNo || '';
+    document.getElementById('wps_no_welder').value = wpsNo || '';
+    document.getElementById('weld_process_welder').value = weldProcess || '';
+    document.getElementById('welder_id').value = welderId || '';
+    document.getElementById('welder_2id').value = welder2Id || '';
+
+    if (weldDate) {
+        let date = new Date(weldDate);
+        let formattedDate = date.toISOString().split('T')[0];
+        document.getElementById('weld_date_welder').value = formattedDate;
+    } else {
+        document.getElementById('weld_date_welder').value = '';
+    }
+}
+
+
+        // Function to save weld changes
+        function saveChanges() {
+            const weldId = document.getElementById('weld_id').value;
+            const fitterId = document.getElementById('fitter_id').value || null;  
+            const fittupCheckedCount = document.getElementById('fittup_checked_count').value || null;  
+            const remarks = document.getElementById('remarks').value || '';  
+            const data = {
+                sheet_no: document.getElementById('sheet_no').value,
+                revision: document.getElementById('revision').value,
+                spool_no: document.getElementById('spool_no').value,
+                from_desc_1: document.getElementById('from_desc_1').value,
+                heat_no1: document.getElementById('heat_no1').value,
+                to_desc_2: document.getElementById('to_desc_2').value,
+                heat_no2: document.getElementById('heat_no2').value,
+                dn: document.getElementById('dn').value,
+                weld_type: document.getElementById('weld_type').value,
+                fitup_date: document.getElementById('fitup_date').value,
+                thick_1: document.getElementById('thick_1').value, // Added thick_1 field
+                
+                // Newly added fields
+                fitter_id: fitterId,
+                fittup_checked_count: fittupCheckedCount,
+                remarks: remarks,
+            };
+
+            fetch(`/api/weldrecords/${weldId}/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Weld successfully updated!');
+                    location.reload(); 
+                } else {
+                    alert('Error saving weld.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function saveWelderChanges() {
+    const weldId = document.getElementById('welder_weld_id').value;
+    const welderId = document.getElementById('welder_id').value || '';
+    const welder2Id = document.getElementById('welder_2id').value || '';
+    const weldDate = document.getElementById('weld_date_welder').value || '';
+
+    const data = {
+        description_area: document.getElementById('description_area_welder').value,
+        isometri_no: document.getElementById('isometri_no_welder').value,
+        weld_no: document.getElementById('weld_no_welder').value,
+        wps_no: document.getElementById('wps_no_welder').value,
+        weld_process: document.getElementById('weld_process_welder').value,
+        welder_id: welderId,
+        welder_2id: welder2Id,
+        weld_date: weldDate,
+    };
+
+    fetch(`/api/weldrecords/${weldId}/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                alert('Weld successfully updated!');
+                location.reload(); // Sayfayı yenile
+            } else {
+                alert('Error saving weld.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Weld or Fitup Records</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1>Export Weld or Fitup Records</h1>
+
+    <!-- Form: Choose either fit-up date or weld date -->
+    <form method="POST" action="{% url 'export_welds_by_date' %}">
+        {% csrf_token %}
+
+        <!-- Radio Buttons to Choose Fit-up or Weld -->
+        <h3>Select Date Range Type</h3>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="date_type" id="fitup_option" value="fitup" checked>
+            <label class="form-check-label" for="fitup_option">
+                Filter by Fit-up Date
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="date_type" id="weld_option" value="weld">
+            <label class="form-check-label" for="weld_option">
+                Filter by Weld Date
+            </label>
+        </div>
+
+        <!-- Fit-up Date Filter (Enabled by default) -->
+        <div id="fitup_date_range" class="date-range">
+            <h3>Fit-up Date Filter</h3>
+            <div class="form-group">
+                <label for="fitup_start_date">Fitup Start Date</label>
+                <input type="text" id="fitup_start_date" name="fitup_start_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="fitup_end_date">Fitup End Date</label>
+                <input type="text" id="fitup_end_date" name="fitup_end_date" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Weld Date Filter (Initially disabled) -->
+        <div id="weld_date_range" class="date-range" style="display: none;">
+            <h3>Weld Date Filter</h3>
+            <div class="form-group">
+                <label for="weld_start_date">Weld Start Date</label>
+                <input type="text" id="weld_start_date" name="weld_start_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="weld_end_date">Weld End Date</label>
+                <input type="text" id="weld_end_date" name="weld_end_date" class="form-control">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Export</button>
+    </form>
+
+</div>
+
+<!-- JavaScript to Toggle Between Fit-up and Weld Date Filters -->
+<script>
+    // Enable/Disable date fields based on the selected radio option
+    document.getElementById('fitup_option').addEventListener('change', function() {
+        document.getElementById('fitup_date_range').style.display = 'block';
+        document.getElementById('weld_date_range').style.display = 'none';
+        document.getElementById('fitup_start_date').required = true;
+        document.getElementById('fitup_end_date').required = true;
+        document.getElementById('weld_start_date').required = false;
+        document.getElementById('weld_end_date').required = false;
+    });
+
+    document.getElementById('weld_option').addEventListener('change', function() {
+        document.getElementById('fitup_date_range').style.display = 'none';
+        document.getElementById('weld_date_range').style.display = 'block';
+        document.getElementById('fitup_start_date').required = false;
+        document.getElementById('fitup_end_date').required = false;
+        document.getElementById('weld_start_date').required = true;
+        document.getElementById('weld_end_date').required = true;
+    });
+
+    // Flatpickr date picker initialization
+    flatpickr("#fitup_start_date", { dateFormat: "Y-m-d" });
+    flatpickr("#fitup_end_date", { dateFormat: "Y-m-d" });
+    flatpickr("#weld_start_date", { dateFormat: "Y-m-d" });
+    flatpickr("#weld_end_date", { dateFormat: "Y-m-d" });
+</script>
+
+</body>
+</html>

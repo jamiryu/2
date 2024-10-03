@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ag-grid-enterprise": "^32.2.0",
+    "openai": "^4.61.0"
+  }
+}
